@@ -29,8 +29,8 @@ const SLIDE_GENERATION_PROMPT = `You are an elite presentation designer. Create 
 
 CRITICAL RULES:
 1. The slide background is WHITE (#ffffff) - design content accordingly
-2. ALL text MUST be readable - use proper contrast (dark text on light backgrounds, light text on dark elements)
-3. Respond with ONLY valid JSON, no markdown
+2. ALL text MUST be readable - use proper contrast
+3. Respond with ONLY valid JSON. Do NOT use markdown code blocks (no \`\`\`json). Just the raw JSON string.
 
 OUTPUT FORMAT:
 {

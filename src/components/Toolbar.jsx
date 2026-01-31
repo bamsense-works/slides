@@ -164,15 +164,6 @@ export function Toolbar({
                     <Upload size={18} />
                 </button>
 
-                {/* Theme Toggle */}
-                <button
-                    className="btn btn-ghost btn-icon"
-                    onClick={onToggleTheme}
-                    title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-                >
-                    {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-                </button>
-
                 {/* Settings */}
                 <div className="dropdown react-controlled" ref={settingsRef}>
                     <button

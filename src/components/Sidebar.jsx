@@ -38,16 +38,37 @@ export function Sidebar({
     const [manualResponse, setManualResponse] = useState('');
     const [copied, setCopied] = useState(false);
 
+    const handleSlideCountChange = (e) => {
+        const val = e.target.value;
+        if (val === '') {
+            setSlideCount('');
+            return;
+        }
+        const num = parseInt(val);
+        if (!isNaN(num)) {
+            setSlideCount(num);
+        }
+    };
+
+    const handleSlideCountBlur = () => {
+        let val = parseInt(slideCount);
+        if (isNaN(val) || val < 1) val = 1;
+        if (val > 50) val = 50;
+        setSlideCount(val);
+    };
+
     const handleGenerate = useCallback(async () => {
         if (!topic.trim()) return;
         
+        const finalSlideCount = parseInt(slideCount) || 8;
+
         if (isManualMode) {
              if (!manualResponse.trim()) return;
              await onImportPresentation(manualResponse, topic);
         } else {
              // Pass description and instructions as combined context
              const context = [description, instructions].filter(s => s.trim());
-             await onGeneratePresentation(topic, context, slideCount);
+             await onGeneratePresentation(topic, context, finalSlideCount);
         }
         
         // Reset state
@@ -76,8 +97,9 @@ export function Sidebar({
     }, [slides, onReorderSlides]);
 
     const getGeneratedPrompt = () => {
+        const finalSlideCount = parseInt(slideCount) || 8;
         const context = [description, instructions].filter(s => s.trim());
-        const { systemPrompt, userPrompt } = createPresentationPrompt(topic, context, slideCount);
+        const { systemPrompt, userPrompt } = createPresentationPrompt(topic, context, finalSlideCount);
         return `${systemPrompt}\n\n${userPrompt}`;
     };
 
@@ -120,7 +142,7 @@ export function Sidebar({
                 </button>
             </div>
 
-            {/* Topic Input Modal */}
+            {/* Topic Modal */}
             <AnimatePresence>
                 {showTopicInput && (
                     <motion.div
@@ -138,13 +160,14 @@ export function Sidebar({
                             onClick={(e) => e.stopPropagation()}
                         >
                             <div className="topic-modal-header">
-                                <h3>{isManualMode ? 'Manual Import' : 'Generate Presentation'}</h3>
+                                <h3>{isManualMode ? 'Manual AI Generation' : 'Generate Presentation'}</h3>
                                 <div className="header-actions">
                                     <button 
-                                        className="btn btn-ghost btn-sm"
+                                        className={`btn btn-sm ${isManualMode ? 'btn-primary' : 'btn-ghost'}`}
                                         onClick={() => setIsManualMode(!isManualMode)}
+                                        title="Use this if you don't have an API key configured"
                                     >
-                                        {isManualMode ? 'Switch to Auto' : 'No API Key?'}
+                                        {isManualMode ? 'Back to Auto' : 'No API Key?'}
                                     </button>
                                     <button
                                         className="btn btn-ghost btn-icon"
@@ -161,7 +184,7 @@ export function Sidebar({
                                     <input
                                         type="text"
                                         className="input input-lg"
-                                        placeholder="e.g., Introduction to Machine Learning"
+                                        placeholder="e.g., Introduction to Quantum Computing"
                                         value={topic}
                                         onChange={(e) => setTopic(e.target.value)}
                                         autoFocus
@@ -177,7 +200,7 @@ export function Sidebar({
                                             </label>
                                             <textarea
                                                 className="input textarea"
-                                                placeholder="Describe what you want to cover in the presentation..."
+                                                placeholder="Describe what you want to cover..."
                                                 value={description}
                                                 onChange={(e) => setDescription(e.target.value)}
                                                 rows={3}
@@ -192,10 +215,9 @@ export function Sidebar({
                                             <input
                                                 type="number"
                                                 className="input"
-                                                min="1"
-                                                max="50"
                                                 value={slideCount}
-                                                onChange={(e) => setSlideCount(Math.min(50, Math.max(1, parseInt(e.target.value) || 8)))}
+                                                onChange={handleSlideCountChange}
+                                                onBlur={handleSlideCountBlur}
                                             />
                                         </div>
 
@@ -217,42 +239,43 @@ export function Sidebar({
 
                                 {isManualMode && topic && (
                                     <div className="manual-mode-section">
-                                        <div className="form-group">
-                                            <label className="form-label">
-                                                1. Copy Prompt ({slideCount} slides)
-                                                <button 
-                                                    className="btn btn-xs btn-ghost ml-2"
-                                                    onClick={copyToClipboard}
-                                                >
-                                                    {copied ? <Check size={12} /> : <Copy size={12} />}
-                                                    {copied ? ' Copied!' : ' Copy'}
-                                                </button>
-                                            </label>
-                                            <div className="form-group">
-                                                <input
-                                                    type="number"
-                                                    className="input input-sm mb-2"
-                                                    style={{ maxWidth: '100px' }}
-                                                    min="1"
-                                                    max="50"
-                                                    value={slideCount}
-                                                    onChange={(e) => setSlideCount(Math.min(50, Math.max(1, parseInt(e.target.value) || 8)))}
-                                                />
-                                            </div>
-                                            <div className="prompt-preview">
-                                                {getGeneratedPrompt()}
+                                        <div className="manual-step">
+                                            <div className="step-badge">1</div>
+                                            <div className="step-content">
+                                                <label className="form-label">
+                                                    Copy Prompt ({parseInt(slideCount) || 8} slides)
+                                                    <button 
+                                                        className="btn btn-xs btn-ghost ml-2"
+                                                        onClick={copyToClipboard}
+                                                    >
+                                                        {copied ? <Check size={12} /> : <Copy size={12} />}
+                                                        {copied ? ' Copied!' : ' Copy'}
+                                                    </button>
+                                                </label>
+                                                <p className="step-desc">
+                                                    Copy this prompt and paste it into ChatGPT, Gemini, or Claude.
+                                                </p>
+                                                <div className="prompt-preview">
+                                                    {getGeneratedPrompt()}
+                                                </div>
                                             </div>
                                         </div>
 
-                                        <div className="form-group">
-                                            <label className="form-label">2. Paste AI Response (JSON)</label>
-                                            <textarea
-                                                className="input textarea code-input"
-                                                placeholder='Paste the JSON response here (e.g., { "title": "...", "slides": [...] })'
-                                                value={manualResponse}
-                                                onChange={(e) => setManualResponse(e.target.value)}
-                                                rows={6}
-                                            />
+                                        <div className="manual-step">
+                                            <div className="step-badge">2</div>
+                                            <div className="step-content">
+                                                <label className="form-label">Paste JSON Response</label>
+                                                <p className="step-desc">
+                                                    Paste the AI's response below. It must be valid JSON code.
+                                                </p>
+                                                <textarea
+                                                    className="input textarea code-input"
+                                                    placeholder='Paste the full JSON response here...'
+                                                    value={manualResponse}
+                                                    onChange={(e) => setManualResponse(e.target.value)}
+                                                    rows={6}
+                                                />
+                                            </div>
                                         </div>
                                     </div>
                                 )}
@@ -599,6 +622,40 @@ export function Sidebar({
             display: flex;
             flex-direction: column;
             gap: 20px;
+        }
+
+        .manual-step {
+            display: flex;
+            gap: 12px;
+        }
+
+        .step-badge {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .step-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .step-desc {
+            font-size: var(--text-xs);
+            color: var(--text-tertiary);
+            margin: 0;
         }
         
         .prompt-preview {
