@@ -120,7 +120,7 @@ export function Toolbar({
             <div className="toolbar-left">
                 <div className="toolbar-logo">
                     <div className="logo-container">
-                        <span className="logo-brand">bamsemse.works</span>
+                        <span className="logo-brand">bamsense.works</span>
                         <span className="logo-title">Dev Slides</span>
                     </div>
                 </div>
