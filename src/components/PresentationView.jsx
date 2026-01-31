@@ -202,7 +202,7 @@ export function PresentationView({
             onKeyDown={handleKeyDown}
             onClick={handleContainerClick}
         >
-            {/* Brand Logo - Only on first slide */}
+            {/* Brand Logo - Only on first slide - Commented out for now
             {currentIndex === 0 && (
                 <div className="presentation-logo">
                     <div className="presentation-brand-container">
@@ -210,7 +210,7 @@ export function PresentationView({
                         <span className="presentation-app-name">Dev Slides</span>
                     </div>
                 </div>
-            )}
+            )} */}
 
             {/* Progress bar */}
             <div className="presentation-progress">
