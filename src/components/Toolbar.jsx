@@ -16,13 +16,15 @@ import {
     Loader2,
     MoreHorizontal,
     Upload,
-    Save
+    Save,
+    CircleHelp
 } from 'lucide-react';
 
 import { exportToHTML } from '../utils/exportHTML';
 import { exportToPDF } from '../utils/exportPDF';
 import { exportToPPTX } from '../utils/exportPPTX';
 import { initializeAI, getStoredApiKey, isAIConfigured } from '../utils/contentGenerator';
+import { UserManual } from './UserManual';
 
 export function Toolbar({
     presentationTitle,
@@ -36,6 +38,7 @@ export function Toolbar({
 }) {
     const [isExportOpen, setIsExportOpen] = useState(false);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [isManualOpen, setIsManualOpen] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
     const [exportProgress, setExportProgress] = useState(0);
     const [apiKey, setApiKey] = useState(getStoredApiKey());
@@ -116,6 +119,8 @@ export function Toolbar({
 
     return (
         <header className="toolbar">
+            <UserManual isOpen={isManualOpen} onClose={() => setIsManualOpen(false)} />
+            
             {/* Logo & Title */}
             <div className="toolbar-left">
                 <div className="toolbar-logo">
@@ -154,6 +159,15 @@ export function Toolbar({
                         <span>AI Ready</span>
                     </div>
                 )}
+
+                {/* User Manual */}
+                <button
+                    className="btn btn-ghost btn-icon"
+                    onClick={() => setIsManualOpen(true)}
+                    title="User Guide"
+                >
+                    <CircleHelp size={18} />
+                </button>
 
                 {/* Load Project */}
                 <button
