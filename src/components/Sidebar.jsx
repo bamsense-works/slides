@@ -26,6 +26,8 @@ export function Sidebar({
     onGeneratePresentation,
     onImportPresentation,
     isGenerating,
+    isMobileOpen,
+    onCloseMobile
 }) {
     const [showTopicInput, setShowTopicInput] = useState(false);
     const [topic, setTopic] = useState('');
@@ -79,7 +81,8 @@ export function Sidebar({
         setManualResponse('');
         setSlideCount(8);
         setIsManualMode(false);
-    }, [topic, description, instructions, manualResponse, slideCount, isManualMode, onGeneratePresentation, onImportPresentation]);
+        if (onCloseMobile) onCloseMobile(); // Close mobile drawer after generation
+    }, [topic, description, instructions, manualResponse, slideCount, isManualMode, onGeneratePresentation, onImportPresentation, onCloseMobile]);
 
     const handleReorder = useCallback((newOrder) => {
         // Find the indices and reorder
@@ -114,11 +117,18 @@ export function Sidebar({
     };
 
     return (
-        <aside className="sidebar">
+        <aside className={`sidebar ${isMobileOpen ? 'mobile-open' : ''}`}>
             {/* Header */}
             <div className="sidebar-header">
-                <h2 className="sidebar-title">Slides</h2>
-                <span className="sidebar-count">{slides.length}</span>
+                <div className="header-left">
+                    <h2 className="sidebar-title">Slides</h2>
+                    <span className="sidebar-count">{slides.length}</span>
+                </div>
+                {isMobileOpen && (
+                    <button className="btn btn-ghost btn-icon close-mobile-btn" onClick={onCloseMobile}>
+                        <X size={20} />
+                    </button>
+                )}
             </div>
 
             {/* AI Generate Button */}
@@ -324,11 +334,12 @@ export function Sidebar({
                             key={slide.id}
                             value={slide}
                             className={`slide-item ${index === currentSlideIndex ? 'active' : ''}`}
+                            onClick={() => {
+                                onSlideSelect(index);
+                                if (onCloseMobile) onCloseMobile();
+                            }}
                         >
-                            <div
-                                className="slide-item-content"
-                                onClick={() => onSlideSelect(index)}
-                            >
+                            <div className="slide-item-content">
                                 <div className="slide-item-drag">
                                     <GripVertical size={14} />
                                 </div>
@@ -393,6 +404,7 @@ export function Sidebar({
           flex-direction: column;
           background: var(--bg-secondary);
           border-right: 1px solid var(--border-subtle);
+          transition: transform 0.3s ease;
         }
 
         .sidebar-header {
@@ -401,6 +413,12 @@ export function Sidebar({
           justify-content: space-between;
           padding: 20px;
           border-bottom: 1px solid var(--border-subtle);
+        }
+        
+        .header-left {
+          display: flex;
+          align-items: center;
+          gap: 12px;
         }
 
         .sidebar-title {
@@ -686,6 +704,25 @@ export function Sidebar({
         }
         
         .ml-2 { margin-left: 8px; }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: absolute;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                width: 85%;
+                max-width: 320px;
+                z-index: 50;
+                transform: translateX(-100%);
+                background: var(--bg-secondary);
+                box-shadow: 0 0 40px rgba(0,0,0,0.2);
+            }
+            
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+        }
       `}</style>
         </aside>
     );

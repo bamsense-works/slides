@@ -108,6 +108,23 @@
   --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.16);
 }
 
+/* Responsive Breakpoints & Utilities */
+@media (max-width: 768px) {
+  :root {
+    --space-4: 0.75rem;
+    --space-6: 1rem;
+    --space-8: 1.5rem;
+    --text-4xl: 2rem;
+    --text-3xl: 1.75rem;
+    --text-2xl: 1.5rem;
+    --text-xl: 1.25rem;
+  }
+  
+  .hide-on-mobile {
+    display: none !important;
+  }
+}
+
 /* Reset & Base */
 *,
 *::before,

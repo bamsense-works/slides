@@ -17,7 +17,8 @@ import {
     MoreHorizontal,
     Upload,
     Save,
-    CircleHelp
+    CircleHelp,
+    Menu
 } from 'lucide-react';
 
 import { exportToHTML } from '../utils/exportHTML';
@@ -34,7 +35,8 @@ export function Toolbar({
     theme,
     onToggleTheme,
     onSaveProject,
-    onLoadProject
+    onLoadProject,
+    onToggleMobileSidebar
 }) {
     const [isExportOpen, setIsExportOpen] = useState(false);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -123,6 +125,14 @@ export function Toolbar({
             
             {/* Logo & Title */}
             <div className="toolbar-left">
+                {/* Mobile Menu Toggle */}
+                <button 
+                    className="btn btn-ghost btn-icon mobile-menu-btn"
+                    onClick={onToggleMobileSidebar}
+                >
+                    <Menu size={20} />
+                </button>
+
                 <div className="toolbar-logo">
                     <div className="logo-container">
                         <span className="logo-brand">Bamsense.works</span>
@@ -130,11 +140,11 @@ export function Toolbar({
                     </div>
                 </div>
 
-                <div className="toolbar-divider-vertical" />
+                <div className="toolbar-divider-vertical hide-on-mobile" />
 
                 <input
                     type="text"
-                    className="toolbar-title-input"
+                    className="toolbar-title-input hide-on-mobile"
                     value={presentationTitle}
                     onChange={(e) => onTitleChange(e.target.value)}
                     placeholder="Untitled Presentation"
@@ -154,7 +164,7 @@ export function Toolbar({
 
                 {/* API Key Status */}
                 {apiKeyStatus === 'configured' && (
-                    <div className="api-status configured" title="AI Connected">
+                    <div className="api-status configured hide-on-mobile" title="AI Connected">
                         <Check size={14} />
                         <span>AI Ready</span>
                     </div>
@@ -247,7 +257,7 @@ export function Toolbar({
                         ) : (
                             <>
                                 <Download size={16} />
-                                Export
+                                <span className="hide-on-mobile">Export</span>
                                 <ChevronDown size={14} />
                             </>
                         )}
@@ -299,9 +309,10 @@ export function Toolbar({
                 <button
                     className="btn btn-primary btn-lg"
                     onClick={() => onStartPresentation(0)}
+                    title="Present"
                 >
                     <Play size={18} />
-                    Present
+                    <span className="hide-on-mobile">Present</span>
                 </button>
             </div>
 
@@ -321,6 +332,10 @@ export function Toolbar({
           align-items: center;
           gap: 16px;
           flex: 1;
+        }
+        
+        .mobile-menu-btn {
+            display: none;
         }
 
         .toolbar-logo {
@@ -494,6 +509,38 @@ export function Toolbar({
 
         .settings-hint a {
           color: var(--accent-primary);
+        }
+        
+        @media (max-width: 768px) {
+            .toolbar {
+                padding: 12px 16px;
+                gap: 12px;
+            }
+            
+            .mobile-menu-btn {
+                display: flex;
+            }
+            
+            .toolbar-left {
+                gap: 12px;
+            }
+            
+            .logo-title {
+                font-size: 16px;
+            }
+            
+            .logo-brand {
+                font-size: 10px;
+            }
+            
+            .toolbar-right {
+                gap: 8px;
+            }
+            
+            /* Hide text labels on buttons for mobile */
+            .btn-lg {
+                padding: 8px;
+            }
         }
       `}</style>
         </header>

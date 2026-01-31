@@ -13,6 +13,7 @@ import { PresentationView } from './components/PresentationView';
 import './index.css';
 
 function App() {
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const {
     presentationTitle,
     setPresentationTitle,
@@ -54,6 +55,7 @@ function App() {
       loadSlides(result.slides);
 
       toast.success(`Generated ${result.slides.length} slides!`, { id: toastId });
+      setIsMobileSidebarOpen(false); // Close sidebar on mobile after generation
     } catch (error) {
       console.error('Generation error:', error);
       toast.error(error.message || 'Failed to generate presentation', { id: toastId });
@@ -73,6 +75,7 @@ function App() {
       loadSlides(result.slides);
 
       toast.success(`Imported ${result.slides.length} slides!`, { id: toastId });
+      setIsMobileSidebarOpen(false); // Close sidebar on mobile after import
     } catch (error) {
       console.error('Import error:', error);
       toast.error(error.message || 'Failed to import slides', { id: toastId });
@@ -120,6 +123,11 @@ function App() {
     reader.readAsText(file);
   }, [setPresentationTitle, loadSlides]);
 
+  const handleGoToSlide = (index) => {
+      goToSlide(index);
+      setIsMobileSidebarOpen(false); // Close sidebar when navigating on mobile
+  };
+
   return (
     <div className="app" data-theme={theme}>
       {/* Toast notifications */}
@@ -156,15 +164,20 @@ function App() {
         onToggleTheme={toggleTheme}
         onSaveProject={handleSaveProject}
         onLoadProject={handleLoadProject}
+        onToggleMobileSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
       />
 
       {/* Main Content */}
       <main className="app-main">
-        {/* Sidebar */}
+        {/* Sidebar - Mobile Overlay */}
+        {isMobileSidebarOpen && (
+            <div className="sidebar-overlay" onClick={() => setIsMobileSidebarOpen(false)} />
+        )}
+        
         <Sidebar
           slides={slides}
           currentSlideIndex={currentSlideIndex}
-          onSlideSelect={goToSlide}
+          onSlideSelect={handleGoToSlide}
           onAddSlide={addSlide}
           onDeleteSlide={deleteSlide}
           onDuplicateSlide={duplicateSlide}
@@ -172,6 +185,8 @@ function App() {
           onGeneratePresentation={handleGeneratePresentation}
           onImportPresentation={handleImportPresentation}
           isGenerating={isGenerating}
+          isMobileOpen={isMobileSidebarOpen}
+          onCloseMobile={() => setIsMobileSidebarOpen(false)}
         />
 
         {/* Editor Area */}
@@ -257,6 +272,16 @@ function App() {
           display: flex;
           flex: 1;
           overflow: hidden;
+          position: relative;
+        }
+        
+        .sidebar-overlay {
+            display: none;
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 40;
+            backdrop-filter: blur(2px);
         }
 
         .app-editor {
@@ -265,6 +290,7 @@ function App() {
           flex-direction: column;
           padding: 24px;
           overflow: hidden;
+          width: 100%;
         }
 
         .editor-header {
@@ -272,6 +298,7 @@ function App() {
           align-items: center;
           justify-content: space-between;
           margin-bottom: 20px;
+          gap: 12px;
         }
 
         .slide-title-input {
@@ -304,6 +331,7 @@ function App() {
         .slide-indicator {
           font-size: var(--text-sm);
           color: var(--text-tertiary);
+          white-space: nowrap;
         }
 
         .editor-content {
@@ -323,6 +351,13 @@ function App() {
           display: flex;
           align-items: center;
           gap: 8px;
+          overflow-x: auto;
+          max-width: 60%;
+          padding: 4px;
+        }
+        
+        .navigation-dots::-webkit-scrollbar {
+            display: none;
         }
 
         .nav-dot {
@@ -334,6 +369,7 @@ function App() {
           border-radius: 50%;
           cursor: pointer;
           transition: all var(--transition-fast);
+          flex-shrink: 0;
         }
 
         .nav-dot:hover {
@@ -348,26 +384,30 @@ function App() {
 
         /* Responsive */
         @media (max-width: 768px) {
-          .app-main {
-            flex-direction: column;
+          .app-editor {
+            padding: 16px;
           }
-
-          .sidebar {
-            width: 100%;
-            height: auto;
-            max-height: 200px;
-            border-right: none;
-            border-bottom: 1px solid var(--border-subtle);
+          
+          .sidebar-overlay {
+            display: block;
           }
-
-          .sidebar-slides {
-            flex-direction: row;
-            overflow-x: auto;
-            overflow-y: hidden;
+          
+          .editor-header {
+             flex-direction: column;
+             align-items: flex-start;
+             gap: 4px;
+             margin-bottom: 12px;
           }
-
-          .slides-list {
-            flex-direction: row;
+          
+          .slide-title-input {
+             padding: 8px 12px;
+             font-size: var(--text-lg);
+             width: 100%;
+          }
+          
+          .slide-indicator {
+             padding-left: 12px;
+             font-size: var(--text-xs);
           }
         }
       `}</style>
