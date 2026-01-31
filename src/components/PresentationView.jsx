@@ -206,7 +206,7 @@ export function PresentationView({
             {currentIndex === 0 && (
                 <div className="presentation-logo">
                     <div className="presentation-brand-container">
-                        <span className="presentation-brand">bamsense.works</span>
+                        <span className="presentation-brand">Bamsense.works</span>
                         <span className="presentation-app-name">Dev Slides</span>
                     </div>
                 </div>
